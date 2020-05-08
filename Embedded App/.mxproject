@@ -1,7 +1,7 @@
 [PreviousGenFiles]
-HeaderPath=C:/Users/Alaa/Documents/EmbeddedLab/Heart Monitor/Heart Monitor/Inc
+HeaderPath=C:/Users/Alaa/Desktop/Inc
 HeaderFiles=stm32f1xx_it.h;stm32f1xx_hal_conf.h;main.h;
-SourcePath=C:/Users/Alaa/Documents/EmbeddedLab/Heart Monitor/Heart Monitor/Src
+SourcePath=C:/Users/Alaa/Desktop/Src
 SourceFiles=stm32f1xx_it.c;stm32f1xx_hal_msp.c;main.c;
 
 [PreviousLibFiles]

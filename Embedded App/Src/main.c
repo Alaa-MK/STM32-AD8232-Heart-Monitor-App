@@ -20,16 +20,65 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include <math.h>
+
+/* Private includes ----------------------------------------------------------*/
+/* USER CODE BEGIN Includes */
+
+/* USER CODE END Includes */
+
+/* Private typedef -----------------------------------------------------------*/
+/* USER CODE BEGIN PTD */
+
+/* USER CODE END PTD */
+
+/* Private define ------------------------------------------------------------*/
+/* USER CODE BEGIN PD */
+/* USER CODE END PD */
+
+/* Private macro -------------------------------------------------------------*/
+/* USER CODE BEGIN PM */
+
+/* USER CODE END PM */
+
+/* Private variables ---------------------------------------------------------*/
 ADC_HandleTypeDef hadc1;
+
+TIM_HandleTypeDef htim1;
 
 UART_HandleTypeDef huart1;
 
+/* USER CODE BEGIN PV */
+
+/* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_ADC1_Init(void);
 static void MX_USART1_UART_Init(void);
+static void MX_TIM1_Init(void);
+
+uint32_t i=0;
+
+uint32_t sample;
+char buffer [8];
+
+//clock frequency used: 32.768 KHZ
+void configureTimer (int sampling_rate){
+	int prescaler = 128/sampling_rate + 1;						//	(2^23/sampling rate)/2^16 = 2^7/sampling rate				+1 in case integer division rounds down
+	int load = 8388608/(sampling_rate * prescaler);		//	#clocks / prescaler				=	(2^23/sampling rate) / prescaler 
+	__HAL_TIM_SET_PRESCALER(&htim1,	 prescaler);
+	__HAL_TIM_SET_AUTORELOAD(&htim1, load);
+}
+
+void TIM1_UP_IRQHandler(){
+	HAL_TIM_IRQHandler(&htim1);
+	sample = HAL_ADC_GetValue(&hadc1);
+	sprintf(buffer, "%lu\n\r", (unsigned long) sample);
+	HAL_UART_Transmit(&huart1, (uint8_t *) buffer, sizeof(buffer), HAL_MAX_DELAY);
+}
+
 
 /**
   * @brief  The application entry point.
@@ -38,19 +87,20 @@ static void MX_USART1_UART_Init(void);
 int main(void)
 {
   HAL_Init();
+
   SystemClock_Config();
+
   MX_GPIO_Init();
   MX_ADC1_Init();
   MX_USART1_UART_Init();
+  MX_TIM1_Init();
+	
+	HAL_TIM_Base_Start_IT(&htim1);
+	configureTimer(1);
 	HAL_ADC_Start(&hadc1);
 	
-	uint32_t sample;
-	char buffer [8];
   while (1)
   {
-		sample = HAL_ADC_GetValue(&hadc1);
-		sprintf(buffer, "%lu\n\r", (unsigned long) sample);
-		HAL_UART_Transmit(&huart1, (uint8_t *) buffer, sizeof(buffer), HAL_MAX_DELAY);
 		HAL_Delay(250);
   }
 }
@@ -138,6 +188,52 @@ static void MX_ADC1_Init(void)
   /* USER CODE BEGIN ADC1_Init 2 */
 
   /* USER CODE END ADC1_Init 2 */
+
+}
+
+/**
+  * @brief TIM1 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_TIM1_Init(void)
+{
+
+  /* USER CODE BEGIN TIM1_Init 0 */
+
+  /* USER CODE END TIM1_Init 0 */
+
+  TIM_ClockConfigTypeDef sClockSourceConfig = {0};
+  TIM_MasterConfigTypeDef sMasterConfig = {0};
+
+  /* USER CODE BEGIN TIM1_Init 1 */
+
+  /* USER CODE END TIM1_Init 1 */
+  htim1.Instance = TIM1;
+  htim1.Init.Prescaler = 1;	//max
+  htim1.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim1.Init.Period = 100;		//max
+  htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  htim1.Init.RepetitionCounter = 0;
+  htim1.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
+  if (HAL_TIM_Base_Init(&htim1) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
+  if (HAL_TIM_ConfigClockSource(&htim1, &sClockSourceConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+  if (HAL_TIMEx_MasterConfigSynchronization(&htim1, &sMasterConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN TIM1_Init 2 */
+
+  /* USER CODE END TIM1_Init 2 */
 
 }
 
