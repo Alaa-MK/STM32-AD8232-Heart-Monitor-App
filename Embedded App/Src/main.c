@@ -59,13 +59,17 @@ static void MX_ADC1_Init(void);
 static void MX_USART1_UART_Init(void);
 static void MX_TIM1_Init(void);
 
-uint32_t i=0;
-
 uint32_t sample;
-char buffer [8];
+char TxBuffer [8];
+char param_s [7];
+int param;
+char RxBuffer[8];
+int RxIndex = 0;
+char c;
+
 
 //clock frequency used: 32.768 KHZ
-void configureTimer (int sampling_rate){
+void configureSamplingRate (int sampling_rate){
 	int prescaler = 128/sampling_rate + 1;						//	(2^23/sampling rate)/2^16 = 2^7/sampling rate				+1 in case integer division rounds down
 	int load = 8388608/(sampling_rate * prescaler);		//	#clocks / prescaler				=	(2^23/sampling rate) / prescaler 
 	__HAL_TIM_SET_PRESCALER(&htim1,	 prescaler);
@@ -75,10 +79,34 @@ void configureTimer (int sampling_rate){
 void TIM1_UP_IRQHandler(){
 	HAL_TIM_IRQHandler(&htim1);
 	sample = HAL_ADC_GetValue(&hadc1);
-	sprintf(buffer, "%lu\n\r", (unsigned long) sample);
-	HAL_UART_Transmit(&huart1, (uint8_t *) buffer, sizeof(buffer), HAL_MAX_DELAY);
+	sprintf(TxBuffer, "%04lu\n", (unsigned long) sample);
+	HAL_UART_Transmit(&huart1, (uint8_t *) TxBuffer, sizeof(TxBuffer), HAL_MAX_DELAY);
 }
 
+
+void USART1_IRQHandler(void)
+{
+  HAL_UART_IRQHandler(&huart1);
+	int result = HAL_UART_Receive(&huart1, (uint8_t *) &c, 1, 500);
+	if (result == HAL_OK){
+		if (c != '\n'){
+			RxBuffer[RxIndex++] = c;
+		}
+		else {
+			strcpy(param_s, RxBuffer + 1); 
+			param = atoi(param_s);
+			switch(RxBuffer[0]){
+				case 's':
+					configureSamplingRate(param);
+					break;
+				default:
+					break;
+			}
+			memset(RxBuffer, 0, 8);
+			RxIndex = 0;
+		}
+	}	
+}
 
 /**
   * @brief  The application entry point.
@@ -96,8 +124,11 @@ int main(void)
   MX_TIM1_Init();
 	
 	HAL_TIM_Base_Start_IT(&htim1);
-	configureTimer(1);
+	configureSamplingRate(10);
 	HAL_ADC_Start(&hadc1);
+	
+	__HAL_UART_ENABLE_IT(&huart1,UART_IT_RXNE);
+
 	
   while (1)
   {

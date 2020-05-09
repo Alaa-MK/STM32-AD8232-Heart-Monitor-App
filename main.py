@@ -7,22 +7,21 @@ from serial.tools import list_ports
 
 def backgroundThread(app, appWindow):
     while True:
-        if app.port == '' or app.baudRate == 0:
+        if app.serial is None:
             continue
-        with serial.Serial(port=app.port,baudrate=app.baudRate) as ser:
-            val = ser.read(3)
-            val = int(val.decode(), 16) / 4096
-            appWindow.updateGraph(val)
-            print(val)
+        val = app.serial.readline().decode()[3:-1]
+        print(val)
+        val = int(val) / 4096
+        appWindow.updateGraph(val)
 
-            if app.isCollecting:
-                if (time.time() > app.startTime + app.duration):
-                    with open('data.csv', 'w', newline='') as myfile:
-                        wr = csv.writer(myfile)
-                        wr.writerows(app.collectedData)
-                    app.isCollecting = False
-                else:
-                    app.collectedData.append([time.ctime(), val])
+        if app.isCollecting:
+            if (time.time() > app.startTime + app.duration):
+                with open('data.csv', 'w', newline='') as myfile:
+                    wr = csv.writer(myfile)
+                    wr.writerows(app.collectedData)
+                app.isCollecting = False
+            else:
+                app.collectedData.append([time.ctime(), val])
                 
 class App():
     def __init__(self):   
@@ -34,8 +33,7 @@ class App():
         self.collectedData = []
 
         #communicaation
-        self.port = ''
-        self.baudRate = 0
+        self.serial = None
 
         qapp = QtWidgets.QApplication(sys.argv)
         self.appWindow = ApplicationWindow()
@@ -63,8 +61,8 @@ class App():
     def _communicationHandler(self, port, baudRate):
         if baudRate.isnumeric():
             print("changing communication settings..")
-            self.baudRate = int(baudRate)
-            self.port = port
+            self.serial = serial.Serial(port=port, baudrate=baudRate)
+            print(self.serial)
         else:
             print("invalid communication settings!")
 
@@ -72,6 +70,9 @@ class App():
         ports = list(list_ports.comports())
         port = '' if (len(ports) == 0) else ports[0][0]
         self.appWindow.ui.portLineEdit.setText(port)
+
+    def _setSamplingRateHandler(self):
+        return
 
     # def _getSelectedBaudRate(self):
 
@@ -84,6 +85,9 @@ class App():
         )
         self.appWindow.ui.portRefreshButton.clicked.connect(
             self._refreshPortHandler
+        )
+        self.appWindow.ui.samplingApplyButton.clicked.connect(
+            lambda : self._setSamplingRateHandler()
         )
 
 
