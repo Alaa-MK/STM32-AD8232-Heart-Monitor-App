@@ -9,10 +9,13 @@ def backgroundThread(app, appWindow):
     while True:
         if app.serial is None:
             continue
-        val = app.serial.readline().decode()[3:-1]
-        print(val)
-        val = int(val) / 4096
-        appWindow.updateGraph(val)
+        # print(val)
+        try:
+            val = app.serial.readline().decode()[3:-1]
+            val = int(val) / 4096
+            appWindow.appendValue(val)
+        except:
+            print("Not a valid number!")
 
         if app.isCollecting:
             if (time.time() > app.startTime + app.duration):
@@ -62,9 +65,10 @@ class App():
         if baudRate.isnumeric():
             print("changing communication settings..")
             try:
-                self.serial = serial.Serial(port=port, baudrate=baudRate)
-            except :
-                print("couldn't open port!")
+                self.serial.close()
+            except:
+                "Opening a new port.."
+            self.serial = serial.Serial(port=port, baudrate=baudRate)
             print(self.serial)
         else:
             print("invalid communication settings!")

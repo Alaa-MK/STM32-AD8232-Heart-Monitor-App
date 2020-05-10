@@ -50,5 +50,5 @@ class ApplicationWindow(QtWidgets.QMainWindow):
         layout.addWidget(self.graph.canvas)
         
 
-    def updateGraph(self, value):
+    def appendValue(self, value):
         self.graph.append(value)
