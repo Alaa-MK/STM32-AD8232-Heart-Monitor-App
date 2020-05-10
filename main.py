@@ -9,11 +9,11 @@ def backgroundThread(app, appWindow):
     while True:
         if app.serial is None:
             continue
-        # print(val)
         try:
             val = app.serial.readline().decode()[3:-1]
             val = int(val) / 4096
             appWindow.appendValue(val)
+            print(val)
         except:
             print("Not a valid number!")
 
@@ -80,6 +80,11 @@ class App():
 
     def _setSamplingRateHandler(self, rate):
         self.serial.write(f's{rate}\n'.encode())
+        print('rate', f's{rate}\n')
+
+    def _startCollectingHandler(self, duration):
+        self.serial.write(f'c{duration}\n'.encode())
+        
 
     # def _getSelectedBaudRate(self):
 

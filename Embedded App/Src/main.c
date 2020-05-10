@@ -67,17 +67,28 @@ char RxBuffer[8];
 int RxIndex = 0;
 char c;
 
+//systick
+int ticks = 0;
+int isSending = 0;
+int duration = 0;
 
-//system clock frequency used: 4MHz
+
+//system clock frequency used: 8MHz
 void configureSamplingRate (int sampling_rate){
-	volatile int prescaler = 64/sampling_rate + 1;						//	(2^22/sampling rate)/2^16 = 2^6/sampling rate				+1 in case integer division rounds down
-	volatile int load = 4194304/(sampling_rate * prescaler);		//	#clocks / prescaler				=	(2^22/sampling rate) / prescaler 
+	volatile int prescaler = 128/sampling_rate + 1;						//	(2^23/sampling rate)/2^16 = 2^7/sampling rate				+1 in case integer division rounds down
+	volatile int load = 8388608/(sampling_rate * prescaler);		//	#clocks / prescaler				=	(2^23/sampling rate) / prescaler 
 	__HAL_TIM_SET_PRESCALER(&htim1,	 prescaler);
 	__HAL_TIM_SET_AUTORELOAD(&htim1, load);
 }
 
 void TIM1_UP_IRQHandler(){
 	HAL_TIM_IRQHandler(&htim1);
+	if (!isSending)
+		return;
+	else if (ticks > 1000 * duration){
+		ticks = 0;
+		isSending = 0;
+	}
 	sample = HAL_ADC_GetValue(&hadc1);
 	sprintf(TxBuffer, "%04lu\n", (unsigned long) sample);
 	HAL_UART_Transmit(&huart1, (uint8_t *) TxBuffer, sizeof(TxBuffer), HAL_MAX_DELAY);
@@ -85,13 +96,9 @@ void TIM1_UP_IRQHandler(){
 
 void SysTick_Handler(void)
 {
-  /* USER CODE BEGIN SysTick_IRQn 0 */
-
-  /* USER CODE END SysTick_IRQn 0 */
   HAL_IncTick();
-  /* USER CODE BEGIN SysTick_IRQn 1 */
-
-  /* USER CODE END SysTick_IRQn 1 */
+	if (isSending)
+		ticks++;
 }
 
 
@@ -111,6 +118,9 @@ void USART1_IRQHandler(void)
 				case 's':
 					configureSamplingRate(param);
 					break;
+				case 'c':
+					isSending = 1;
+					duration = param;
 				default:
 					break;
 			}
@@ -130,7 +140,7 @@ int main(void)
 
   SystemClock_Config();
 
-	//HAL_SYSTICK_Config(dfdf);
+	HAL_SYSTICK_Config(8192);			//1ms
 	
   MX_GPIO_Init();
   MX_ADC1_Init();
@@ -189,7 +199,7 @@ void SystemClock_Config(void)
   RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
                               |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_HSI;
-  RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV2;
+  RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
   RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
 
