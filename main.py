@@ -61,7 +61,10 @@ class App():
     def _communicationHandler(self, port, baudRate):
         if baudRate.isnumeric():
             print("changing communication settings..")
-            self.serial = serial.Serial(port=port, baudrate=baudRate)
+            try:
+                self.serial = serial.Serial(port=port, baudrate=baudRate)
+            except :
+                print("couldn't open port!")
             print(self.serial)
         else:
             print("invalid communication settings!")
@@ -71,8 +74,8 @@ class App():
         port = '' if (len(ports) == 0) else ports[0][0]
         self.appWindow.ui.portLineEdit.setText(port)
 
-    def _setSamplingRateHandler(self):
-        return
+    def _setSamplingRateHandler(self, rate):
+        self.serial.write(f's{rate}\n'.encode())
 
     # def _getSelectedBaudRate(self):
 
@@ -87,7 +90,7 @@ class App():
             self._refreshPortHandler
         )
         self.appWindow.ui.samplingApplyButton.clicked.connect(
-            lambda : self._setSamplingRateHandler()
+            lambda : self._setSamplingRateHandler(self.appWindow.ui.samplingRateLineEdit.text())
         )
 
 

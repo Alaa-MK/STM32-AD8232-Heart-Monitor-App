@@ -26,6 +26,7 @@ class Ui_Dialog(object):
         self.baudRateLineEdit = QtWidgets.QLineEdit(self.communicationGroupBox)
         self.baudRateLineEdit.setGeometry(QtCore.QRect(78, 60, 123, 22))
         self.baudRateLineEdit.setObjectName("baudRateLineEdit")
+        self.baudRateLineEdit.setText("9600")
         self.baudRateLabel = QtWidgets.QLabel(self.communicationGroupBox)
         self.baudRateLabel.setGeometry(QtCore.QRect(8, 60, 61, 16))
         self.baudRateLabel.setObjectName("baudRateLabel")

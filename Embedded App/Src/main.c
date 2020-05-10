@@ -89,13 +89,14 @@ void USART1_IRQHandler(void)
   HAL_UART_IRQHandler(&huart1);
 	int result = HAL_UART_Receive(&huart1, (uint8_t *) &c, 1, 500);
 	if (result == HAL_OK){
-		if (c != '\n'){
+		if (c != 0x0A){		//newline
 			RxBuffer[RxIndex++] = c;
 		}
 		else {
 			strcpy(param_s, RxBuffer + 1); 
 			param = atoi(param_s);
-			switch(RxBuffer[0]){
+			char command = RxBuffer[0];
+			switch(command){
 				case 's':
 					configureSamplingRate(param);
 					break;
