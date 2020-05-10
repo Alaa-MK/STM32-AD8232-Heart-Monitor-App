@@ -3,7 +3,7 @@
 <title>Static Call Graph - [Heart Monitor\Heart Monitor.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image Heart Monitor\Heart Monitor.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060750: Last Updated: Sun May 10 16:58:57 2020
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060750: Last Updated: Sun May 10 20:58:27 2020
 <BR><P>
 <H3>Maximum Stack Usage =        176 bytes + Unknown(Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
@@ -57,7 +57,7 @@ Function Pointers
  <LI><a href="#[2d]">SPI1_IRQHandler</a> from startup_stm32f103xb.o(.text) referenced from startup_stm32f103xb.o(RESET)
  <LI><a href="#[2e]">SPI2_IRQHandler</a> from startup_stm32f103xb.o(.text) referenced from startup_stm32f103xb.o(RESET)
  <LI><a href="#[6]">SVC_Handler</a> from stm32f1xx_it.o(i.SVC_Handler) referenced from startup_stm32f103xb.o(RESET)
- <LI><a href="#[9]">SysTick_Handler</a> from stm32f1xx_it.o(i.SysTick_Handler) referenced from startup_stm32f103xb.o(RESET)
+ <LI><a href="#[9]">SysTick_Handler</a> from main.o(i.SysTick_Handler) referenced from startup_stm32f103xb.o(RESET)
  <LI><a href="#[36]">SystemInit</a> from system_stm32f1xx.o(i.SystemInit) referenced from startup_stm32f103xb.o(.text)
  <LI><a href="#[c]">TAMPER_IRQHandler</a> from startup_stm32f103xb.o(.text) referenced from startup_stm32f103xb.o(RESET)
  <LI><a href="#[22]">TIM1_BRK_IRQHandler</a> from startup_stm32f103xb.o(.text) referenced from startup_stm32f103xb.o(RESET)
@@ -715,12 +715,12 @@ Global Symbols
 <P><STRONG><a name="[6]"></a>SVC_Handler</STRONG> (Thumb, 2 bytes, Stack size 0 bytes, stm32f1xx_it.o(i.SVC_Handler))
 <BR>[Address Reference Count : 1]<UL><LI> startup_stm32f103xb.o(RESET)
 </UL>
-<P><STRONG><a name="[9]"></a>SysTick_Handler</STRONG> (Thumb, 4 bytes, Stack size 0 bytes, stm32f1xx_it.o(i.SysTick_Handler))
+<P><STRONG><a name="[9]"></a>SysTick_Handler</STRONG> (Thumb, 4 bytes, Stack size 0 bytes, main.o(i.SysTick_Handler))
 <BR><BR>[Calls]<UL><LI><a href="#[7f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_IncTick
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> startup_stm32f103xb.o(RESET)
 </UL>
-<P><STRONG><a name="[80]"></a>SystemClock_Config</STRONG> (Thumb, 84 bytes, Stack size 88 bytes, main.o(i.SystemClock_Config))
+<P><STRONG><a name="[80]"></a>SystemClock_Config</STRONG> (Thumb, 90 bytes, Stack size 88 bytes, main.o(i.SystemClock_Config))
 <BR><BR>[Stack]<UL><LI>Max Depth = 152<LI>Call Chain = SystemClock_Config &rArr; HAL_RCC_ClockConfig &rArr; HAL_InitTick &rArr; HAL_NVIC_SetPriority
 </UL>
 <BR>[Calls]<UL><LI><a href="#[5d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_RCC_OscConfig
@@ -801,8 +801,10 @@ Global Symbols
 
 <P><STRONG><a name="[a1]"></a>__scatterload_zeroinit</STRONG> (Thumb, 14 bytes, Stack size unknown bytes, handlers.o(i.__scatterload_zeroinit), UNUSED)
 
-<P><STRONG><a name="[88]"></a>configureSamplingRate</STRONG> (Thumb, 32 bytes, Stack size 0 bytes, main.o(i.configureSamplingRate))
-<BR><BR>[Called By]<UL><LI><a href="#[35]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
+<P><STRONG><a name="[88]"></a>configureSamplingRate</STRONG> (Thumb, 44 bytes, Stack size 12 bytes, main.o(i.configureSamplingRate))
+<BR><BR>[Stack]<UL><LI>Max Depth = 12<LI>Call Chain = configureSamplingRate
+</UL>
+<BR>[Called By]<UL><LI><a href="#[35]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 <LI><a href="#[2f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USART1_IRQHandler
 </UL>
 

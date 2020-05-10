@@ -68,10 +68,10 @@ int RxIndex = 0;
 char c;
 
 
-//clock frequency used: 32.768 KHZ
+//system clock frequency used: 4MHz
 void configureSamplingRate (int sampling_rate){
-	int prescaler = 128/sampling_rate + 1;						//	(2^23/sampling rate)/2^16 = 2^7/sampling rate				+1 in case integer division rounds down
-	int load = 8388608/(sampling_rate * prescaler);		//	#clocks / prescaler				=	(2^23/sampling rate) / prescaler 
+	volatile int prescaler = 64/sampling_rate + 1;						//	(2^22/sampling rate)/2^16 = 2^6/sampling rate				+1 in case integer division rounds down
+	volatile int load = 4194304/(sampling_rate * prescaler);		//	#clocks / prescaler				=	(2^22/sampling rate) / prescaler 
 	__HAL_TIM_SET_PRESCALER(&htim1,	 prescaler);
 	__HAL_TIM_SET_AUTORELOAD(&htim1, load);
 }
@@ -81,6 +81,17 @@ void TIM1_UP_IRQHandler(){
 	sample = HAL_ADC_GetValue(&hadc1);
 	sprintf(TxBuffer, "%04lu\n", (unsigned long) sample);
 	HAL_UART_Transmit(&huart1, (uint8_t *) TxBuffer, sizeof(TxBuffer), HAL_MAX_DELAY);
+}
+
+void SysTick_Handler(void)
+{
+  /* USER CODE BEGIN SysTick_IRQn 0 */
+
+  /* USER CODE END SysTick_IRQn 0 */
+  HAL_IncTick();
+  /* USER CODE BEGIN SysTick_IRQn 1 */
+
+  /* USER CODE END SysTick_IRQn 1 */
 }
 
 
@@ -119,6 +130,8 @@ int main(void)
 
   SystemClock_Config();
 
+	//HAL_SYSTICK_Config(dfdf);
+	
   MX_GPIO_Init();
   MX_ADC1_Init();
   MX_USART1_UART_Init();
@@ -176,7 +189,7 @@ void SystemClock_Config(void)
   RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
                               |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_HSI;
-  RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
+  RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV2;
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
   RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
 
@@ -185,7 +198,7 @@ void SystemClock_Config(void)
     Error_Handler();
   }
   PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_ADC;
-  PeriphClkInit.AdcClockSelection = RCC_ADCPCLK2_DIV2;
+  PeriphClkInit.AdcClockSelection = RCC_ADCPCLK2_DIV8;
   if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
   {
     Error_Handler();

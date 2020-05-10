@@ -1,7 +1,7 @@
 [PreviousGenFiles]
-HeaderPath=C:/Users/Alaa/Desktop/Inc
+HeaderPath=E:/AUC/Spring '20/Embedded Systems/Project/STM32-AD8232-Heart-Monitor-App/Embedded App/Inc
 HeaderFiles=stm32f1xx_it.h;stm32f1xx_hal_conf.h;main.h;
-SourcePath=C:/Users/Alaa/Desktop/Src
+SourcePath=E:/AUC/Spring '20/Embedded Systems/Project/STM32-AD8232-Heart-Monitor-App/Embedded App/Src
 SourceFiles=stm32f1xx_it.c;stm32f1xx_hal_msp.c;main.c;
 
 [PreviousLibFiles]
