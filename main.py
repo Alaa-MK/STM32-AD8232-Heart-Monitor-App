@@ -62,16 +62,24 @@ class App():
             print("invalid duration!")
 
     def _communicationHandler(self, port, baudRate):
-        if baudRate.isnumeric():
-            print("changing communication settings..")
-            try:
-                self.serial.close()
-            except:
-                "Opening a new port.."
-            self.serial = serial.Serial(port=port, baudrate=baudRate)
-            print(self.serial)
-        else:
-            print("invalid communication settings!")
+        val = 0
+        try:
+            val = int(baudRate)
+        except:
+            self.appWindow.ui.communicationErrorLabel.setText(
+                "ERROR: Non numerical value!")
+            return
+        if val <= 0:
+            self.appWindow.ui.communicationErrorLabel.setText(
+                "ERROR: Non positive value!")
+            return
+        try:
+            self.serial.close()
+        except:
+            "Opening a new port.."
+        self.serial = serial.Serial(port=port, baudrate=baudRate)
+        self.appWindow.ui.communicationErrorLabel.setText("")
+        print('Communication settings changed!')
 
     def _refreshPortHandler(self):
         ports = list(list_ports.comports())
@@ -79,11 +87,35 @@ class App():
         self.appWindow.ui.portLineEdit.setText(port)
 
     def _setSamplingRateHandler(self, rate):
+        val = 0
+        try:
+            val = int(rate)
+        except:
+            self.appWindow.ui.samplingErrorLabel.setText("ERROR: Non numerical value!")
+            return
+        if val <= 0:
+            self.appWindow.ui.samplingErrorLabel.setText(
+                "ERROR: Non positive value!")
+            return
         self.serial.write(f's{rate}\n'.encode())
-        print('rate', f's{rate}\n')
+        self.appWindow.ui.samplingErrorLabel.setText("")
+        print('Command for setting sampling rate sent!')
 
     def _startCollectingHandler(self, duration):
+        val = 0
+        try:
+            val = int(duration)
+        except:
+            self.appWindow.ui.dataCollectionErrorLabel.setText(
+                "ERROR: Non numerical value!")
+            return
+        if val <= 0:
+            self.appWindow.ui.dataCollectionErrorLabel.setText(
+                "ERROR: Non positive value!")
+            return
         self.serial.write(f'c{duration}\n'.encode())
+        self.appWindow.ui.dataCollectionErrorLabel.setText("")
+        print('Command for collecting data sent!')
         
 
     # def _getSelectedBaudRate(self):
