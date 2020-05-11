@@ -130,6 +130,22 @@ void USART1_IRQHandler(void)
 	}	
 }
 
+void checkElectrodes(){
+		int f1=0, f2=0;
+		if (HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_0))
+			f1=1;
+		if (HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_1))
+			f2=1;
+
+		//both arms positioned correctly > ON, only one positioned correctly > TOGGLE, none > OFF
+		if (f1 && f2)
+			HAL_GPIO_WritePin(GPIOB, GPIO_PIN_12, 1);
+		else if (f1 || f2)
+			HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_12);
+		else
+			HAL_GPIO_WritePin(GPIOB, GPIO_PIN_12, 0);
+}
+
 /**
   * @brief  The application entry point.
   * @retval int
@@ -153,24 +169,22 @@ int main(void)
 	
 	__HAL_UART_ENABLE_IT(&huart1,UART_IT_RXNE);
 
-	int f1, f2;
   while (1)
   {
-		f1=0; f2=0;
-		if (HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_0))
-			f1=1;
-		if (HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_1))
-			f2=1;
-
-		//both arms positioned correctly > ON, only one positioned correctly > TOGGLE, none > OFF
-		if (f1 && f2)
-			HAL_GPIO_WritePin(GPIOB, GPIO_PIN_12, 1);
-		else if (f1 || f2)
-			HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_12);
-		else
-			HAL_GPIO_WritePin(GPIOB, GPIO_PIN_12, 0);
+		//checkElectrodes();
 		
-		HAL_Delay(250);
+		if (!isSending){
+			HAL_GPIO_WritePin(GPIOB, GPIO_PIN_12, 1);	//turn off
+			HAL_TIM_Base_Stop(&htim1);
+			HAL_ADC_Stop(&hadc1);
+			HAL_SuspendTick();
+			HAL_PWR_EnterSLEEPMode(PWR_LOWPOWERREGULATOR_ON, PWR_SLEEPENTRY_WFI);
+			HAL_ResumeTick();
+			SystemClock_Config();
+			HAL_TIM_Base_Start(&htim1);
+			HAL_ADC_Start(&hadc1);
+			HAL_GPIO_WritePin(GPIOB, GPIO_PIN_12, 0);	//turn on 
+		}
   }
 }
 

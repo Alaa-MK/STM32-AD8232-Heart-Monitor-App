@@ -35,7 +35,7 @@ class App():
         self.startTime = None
         self.collectedData = []
 
-        #communicaation
+        #communication
         self.serial = None
 
         qapp = QtWidgets.QApplication(sys.argv)
