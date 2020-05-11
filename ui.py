@@ -48,6 +48,8 @@ class Ui_Dialog(object):
         self.communicationErrorLabel.setGeometry(QtCore.QRect(10, 90, 191, 16))
         self.communicationErrorLabel.setText("")
         self.communicationErrorLabel.setObjectName("communicationErrorLabel")
+        self.communicationErrorLabel.setStyleSheet(
+            'QLabel#communicationErrorLabel {color: red}')
         self.samplingGroupBox = QtWidgets.QGroupBox(Dialog)
         self.samplingGroupBox.setGeometry(QtCore.QRect(230, 261, 231, 141))
         self.samplingGroupBox.setObjectName("samplingGroupBox")
@@ -70,6 +72,8 @@ class Ui_Dialog(object):
         self.samplingErrorLabel.setGeometry(QtCore.QRect(10, 90, 211, 16))
         self.samplingErrorLabel.setText("")
         self.samplingErrorLabel.setObjectName("samplingErrorLabel")
+        self.samplingErrorLabel.setStyleSheet(
+            'QLabel#samplingErrorLabel {color: red}')
         self.dataCollectionGroupBox = QtWidgets.QGroupBox(Dialog)
         self.dataCollectionGroupBox.setGeometry(
             QtCore.QRect(470, 261, 201, 141))
@@ -93,6 +97,8 @@ class Ui_Dialog(object):
             QtCore.QRect(10, 90, 181, 16))
         self.dataCollectionErrorLabel.setText("")
         self.dataCollectionErrorLabel.setObjectName("dataCollectionErrorLabel")
+        self.dataCollectionErrorLabel.setStyleSheet(
+            'QLabel#dataCollectionErrorLabel {color: red}')
         self.graphGroupBox = QtWidgets.QGroupBox(Dialog)
         self.graphGroupBox.setGeometry(QtCore.QRect(9, 9, 661, 251))
         self.graphGroupBox.setTitle("")

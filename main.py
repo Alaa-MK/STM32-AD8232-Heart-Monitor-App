@@ -16,25 +16,10 @@ def backgroundThread(app, appWindow):
             print(val)
         except:
             print("Not a valid number!")
-
-        if app.isCollecting:
-            if (time.time() > app.startTime + app.duration):
-                with open('data.csv', 'w', newline='') as myfile:
-                    wr = csv.writer(myfile)
-                    wr.writerows(app.collectedData)
-                app.isCollecting = False
-            else:
-                app.collectedData.append([time.ctime(), val])
                 
 class App():
     def __init__(self):   
-
-        #data collection
-        self.isCollecting = False
-        self.duration = 10
-        self.startTime = None
-        self.collectedData = []
-
+        
         #communication
         self.serial = None
 
@@ -50,16 +35,6 @@ class App():
 
         self.appWindow.show()
         sys.exit(qapp.exec_())
-
-    def _startCollectingHandler(self, duration):
-        if duration.isnumeric():
-            print("starting collection..")
-            self.duration = int(duration)
-            self.isCollecting = True
-            self.startTime = time.time()
-            self.collectedData.clear()
-        else:   
-            print("invalid duration!")
 
     def _communicationHandler(self, port, baudRate):
         val = 0
