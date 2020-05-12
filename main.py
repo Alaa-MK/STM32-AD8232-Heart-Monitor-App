@@ -13,13 +13,13 @@ def backgroundThread(app, appWindow):
             val = app.serial.readline().decode()[3:-1]
             val = int(val) / 4096
             appWindow.appendValue(val)
-            print(val)
+            # print(val)
         except:
             print("Not a valid number!")
                 
 class App():
     def __init__(self):   
-        
+
         #communication
         self.serial = None
 
