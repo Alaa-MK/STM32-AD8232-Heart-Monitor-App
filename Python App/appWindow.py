@@ -18,7 +18,7 @@ class Graph():
         self.ax.set_ylim(0, 1)
         self.updateRate = 24
         self.lastUpdate = time.time()
-        self.timeRange = 5      #shows only the last 5 seconds
+        self.timeRange = 2      #shows only the last 5 seconds
 
     def append(self, value):
         self.data.append(value)
