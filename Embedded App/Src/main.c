@@ -71,6 +71,8 @@ char c;
 int ticks = 0;
 int isSending = 0;
 int duration = 0;
+int takeSample = 0;
+int command_flag = 0;
 
 
 //system clock frequency used: 8MHz
@@ -89,9 +91,7 @@ void TIM1_UP_IRQHandler(){
 		ticks = 0;
 		isSending = 0;
 	}
-	sample = HAL_ADC_GetValue(&hadc1);
-	sprintf(TxBuffer, "%04lu\n", (unsigned long) sample);
-	HAL_UART_Transmit(&huart1, (uint8_t *) TxBuffer, sizeof(TxBuffer), HAL_MAX_DELAY);
+	takeSample = 1;		//SET flag to true
 }
 
 void SysTick_Handler(void)
@@ -111,39 +111,46 @@ void USART1_IRQHandler(void)
 			RxBuffer[RxIndex++] = c;
 		}
 		else {
-			strcpy(param_s, RxBuffer + 1); 
-			param = atoi(param_s);
-			char command = RxBuffer[0];
-			switch(command){
-				case 's':
-					configureSamplingRate(param);
-					break;
-				case 'c':
-					isSending = 1;
-					duration = param;
-				default:
-					break;
-			}
-			memset(RxBuffer, 0, 8);
-			RxIndex = 0;
+			command_flag = 1;
 		}
 	}	
 }
 
-void checkElectrodes(){
-		int f1=0, f2=0;
-		if (HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_0))
-			f1=1;
-		if (HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_1))
-			f2=1;
+//----------NOT USED------------
+//void checkElectrodes(){
+//		int f1=0, f2=0;
+//		if (HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_0))
+//			f1=1;
+//		if (HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_1))
+//			f2=1;
 
-		//both arms positioned correctly > ON, only one positioned correctly > TOGGLE, none > OFF
-		if (f1 && f2)
-			HAL_GPIO_WritePin(GPIOB, GPIO_PIN_12, 1);
-		else if (f1 || f2)
-			HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_12);
-		else
-			HAL_GPIO_WritePin(GPIOB, GPIO_PIN_12, 0);
+//		//both arms positioned correctly > ON, only one positioned correctly > TOGGLE, none > OFF
+//		if (f1 && f2)
+//			HAL_GPIO_WritePin(GPIOB, GPIO_PIN_12, 1);
+//		else if (f1 || f2)
+//			HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_12);
+//		else
+//			HAL_GPIO_WritePin(GPIOB, GPIO_PIN_12, 0);
+//}
+
+void process_command(){
+	__HAL_UART_DISABLE_IT(&huart1, UART_IT_RXNE);
+	strcpy(param_s, RxBuffer + 1); 
+	param = atoi(param_s);
+	char command = RxBuffer[0];
+	__HAL_UART_ENABLE_IT(&huart1,UART_IT_RXNE);
+	switch(command){
+		case 's':
+			configureSamplingRate(param);
+			break;
+		case 'c':
+			isSending = 1;
+			duration = param;
+		default:
+			break;
+	}
+	memset(RxBuffer, 0, 8);
+	RxIndex = 0;
 }
 
 /**
@@ -171,8 +178,18 @@ int main(void)
 
   while (1)
   {
-		//checkElectrodes();
-		
+		if (takeSample){
+			HAL_TIM_Base_Stop_IT(&htim1);
+			takeSample = 0;
+			HAL_TIM_Base_Start_IT(&htim1);
+			sample = HAL_ADC_GetValue(&hadc1);
+			sprintf(TxBuffer, "%04lu\n", (unsigned long) sample);
+			HAL_UART_Transmit(&huart1, (uint8_t *) TxBuffer, sizeof(TxBuffer), HAL_MAX_DELAY);
+		}
+		if (command_flag) {
+			process_command();
+			command_flag = 0;
+		}
 		if (!isSending){
 			HAL_GPIO_WritePin(GPIOB, GPIO_PIN_12, 1);	//turn off
 			HAL_TIM_Base_Stop(&htim1);
