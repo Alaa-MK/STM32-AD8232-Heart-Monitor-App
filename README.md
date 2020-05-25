@@ -57,3 +57,38 @@ Triggers the conversion and transmission of samples. Sets a ready flag to true, 
 
 ### UART ISR
 On receiving data, the ISR sets a flag to true, then the main function dcodes the command and configure the microcontroller accordingly.
+
+## Baud Rate Configuration
+*“In short, ECG signals, even those high frequency intra-QRS complex notches and slurs, will be limited to 2,000 Hz to 2,500 Hz. So a sampling frequency of 5,000 Hz will be perfect for high-frequency signals “
+Source: https://www.researchgate.net/post/What_is_the_minimum_acceptable_sampling_frequency_for_ECG_signals*
+
+UART 1 is using **8N1** configuration 		(10 bits/frame)
+One sample: 4 digits + ‘\n’ = 5 frames		(50 bits)
+
+At baud rate = 9600, the max sampling rate is: 
+9600/50 = 192 samples/second **(Not sufficient!)**
+Needed baud rate = 50 * 5000 = **250,000 bits/sec**
+
+## Power Saving
+### Clock frequency
+ADC maximum sampling rate: 5000 samples/second
+ADC minimum clock frequency:
+12 cycles/sample * 5000 samples/second = 60KHz
+Since we’re using 8MHz clock, it’s very safe to set the ADC prescaler to divide by 8.
+
+
+## Sleep Mode
+The application sends data on-demand only, when the user asks for 1-minute worth of data. That means that the microcontroller might be idle for a long time when it’s not sampling or sending any data. The microcontroller is put to sleep mode and only wakes up when the user sends any commands.
+
+**Note:** The LED is configured to be ON only with normal mode of operation.
+
+## BPM Calculation
+After doing some research, **Pan Tompkins Algorithm** is the most popular algorithm for QRS detection.
+### Libraries to use
+    - Py-ecg-detectors (https://pypi.org/project/py-ecg-detectors/)
+### References:
+- https://cnx.org/contents/YR1BUs9_@1/QRS-Detection-Using-Pan-Tompkins-algorithm
+- https://www.heighpubs.org/hjcr/pdf/acr-aid1018.pdf
+
+
+
