@@ -63,17 +63,23 @@ On receiving data, the ISR sets a flag to true, then the main function dcodes th
 Source: https://www.researchgate.net/post/What_is_the_minimum_acceptable_sampling_frequency_for_ECG_signals*
 
 UART 1 is using **8N1** configuration 		(10 bits/frame)
+
 One sample: 4 digits + ‘\n’ = 5 frames		(50 bits)
 
 At baud rate = 9600, the max sampling rate is: 
+
 9600/50 = 192 samples/second **(Not sufficient!)**
+
 Needed baud rate = 50 * 5000 = **250,000 bits/sec**
 
 ## Power Saving
 ### Clock frequency
 ADC maximum sampling rate: 5000 samples/second
+
 ADC minimum clock frequency:
+
 12 cycles/sample * 5000 samples/second = 60KHz
+
 Since we’re using 8MHz clock, it’s very safe to set the ADC prescaler to divide by 8.
 
 
