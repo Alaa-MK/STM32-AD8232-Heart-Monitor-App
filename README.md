@@ -89,7 +89,7 @@ The application sends data on-demand only, when the user asks for 1-minute worth
 **Note:** The LED is configured to be ON only with normal mode of operation.
 
 ## BPM Calculation
-After doing some research, **Pan Tompkins Algorithm** is the most popular algorithm for QRS detection.
+After doing some research, **Pan Tompkins Algorithm** is the most popular algorithm for QRS detection. Note that this feature is not implemented yet.
 ### Libraries to use
     - Py-ecg-detectors (https://pypi.org/project/py-ecg-detectors/)
 ### References:
